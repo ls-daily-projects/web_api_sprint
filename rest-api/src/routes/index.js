@@ -1,7 +1,12 @@
 import { Router } from "express"
 import { InternalServerError } from "http-errors"
 
-import { getProjects, insertProject, updateProject } from "../model"
+import {
+    getProjects,
+    insertProject,
+    updateProject,
+    removeProject
+} from "../model"
 import { retrieveProjectFromId, validateProject } from "../middleware"
 
 const apiRouter = Router()
@@ -40,6 +45,20 @@ apiRouter.put(
                 validatedProject
             )
             res.json(updatedProject)
+        } catch (error) {
+            next(InternalServerError(error.message))
+        }
+    }
+)
+
+apiRouter.delete(
+    "/projects/:projectId",
+    retrieveProjectFromId,
+    async (_req, res, next) => {
+        const { project } = res.locals
+        try {
+            await removeProject(project.id)
+            res.sendStatus(204)
         } catch (error) {
             next(InternalServerError(error.message))
         }
