@@ -26,13 +26,24 @@ Demonstrate your understanding of this Sprint's concepts by answering the follow
 
 -   [ ] Mention two parts of Express that you learned about this week.
 
+1. Routing
+2. Middleware
+
 -   [ ] Describe Middleware?
+
+ExpressJS's implementation of the chain-of-responsibility pattern. It lets you compose functionality in a DRY and easy to test kinda way.
 
 -   [ ] Describe a Resource?
 
+In the world of RESTful interfaces, a Resource is the thing you're requesting from a RESTful API.
+
 -   [ ] What can the API return to help clients know if a request was successful?
 
+Status codes and error messages.
+
 -   [ ] How can we partition our application into sub-applications?
+
+What? Idk. You just do it. If you mean how do you split apart Routes, then you... use `express.Router()`... and then just do it.
 
 ## Project Setup
 
