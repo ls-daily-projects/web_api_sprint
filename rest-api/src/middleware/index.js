@@ -1,5 +1,5 @@
-import { getUserById } from "../model"
-import { BadRequest, NotFound } from "http-errors"
+import { getProjectById } from "../model"
+import { NotFound } from "http-errors"
 
 export const handle404 = (req, _res, next) => {
     const { method, path } = req
@@ -10,4 +10,19 @@ export const handle404 = (req, _res, next) => {
 export const handle500 = ({ status = 500, name, message }, _req, res, next) => {
     if (res.headersSent) return next()
     res.status(status).json({ name, statusCode: status, message })
+}
+
+export const retrieveProjectFromId = async (req, res, next) => {
+    const { projectId } = req.params
+    if (!projectId) return next()
+
+    try {
+        const project = await getProjectById(projectId)
+        if (!project) return next(NotFound("No project with that id!"))
+
+        res.locals.project = project
+        next()
+    } catch (error) {
+        next(InternalServerError(error.message))
+    }
 }
