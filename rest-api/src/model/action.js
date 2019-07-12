@@ -16,13 +16,13 @@ export const getActionById = async id => {
 export const insertAction = action =>
     db("actions")
         .insert(action)
-        .then(([id]) => this.get(id))
+        .then(([id]) => getActionById(id))
 
 export const updateAction = (id, changes) =>
     db("actions")
         .where("id", id)
         .update(changes)
-        .then(count => (count > 0 ? this.get(id) : null))
+        .then(count => (count > 0 ? getActionById(id) : null))
 
 export const removeAction = id =>
     db("actions")
