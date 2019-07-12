@@ -2,7 +2,7 @@ import { Router } from "express"
 import { InternalServerError, BadRequest } from "http-errors"
 
 import { getProjects, insertProject } from "../model"
-import { retrieveProjectFromId } from "../middleware"
+import { retrieveProjectFromId, validateProject } from "../middleware"
 
 const apiRouter = Router()
 
@@ -19,19 +19,9 @@ apiRouter.get("/projects/:projectId", retrieveProjectFromId, (_req, res) => {
     res.json(res.locals.project)
 })
 
-apiRouter.post("/projects", async (req, res, next) => {
-    const { project } = req.body
-    project.completed = false
-
-    if (!project.name || !project.description)
-        return next(
-            BadRequest(
-                "Please provide a name and a description for your project"
-            )
-        )
-
+apiRouter.post("/projects", validateProject, async (req, res, next) => {
     try {
-        const newProject = await insertProject(project)
+        const newProject = await insertProject(res.locals.project)
         res.json(newProject)
     } catch (error) {
         next(InternalServerError(error.message))

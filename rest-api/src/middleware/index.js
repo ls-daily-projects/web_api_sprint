@@ -1,5 +1,5 @@
 import { getProjectById } from "../model"
-import { NotFound } from "http-errors"
+import { NotFound, BadRequest } from "http-errors"
 
 export const handle404 = (req, _res, next) => {
     const { method, path } = req
@@ -25,4 +25,19 @@ export const retrieveProjectFromId = async (req, res, next) => {
     } catch (error) {
         next(InternalServerError(error.message))
     }
+}
+
+export const validateProject = (req, res, next) => {
+    const { project } = req.body
+    if (!project.name || !project.description)
+        return next(
+            BadRequest(
+                "Please provide a name and a description for your project"
+            )
+        )
+    if (req.method === "POST") {
+        project.completed = false
+    }
+    res.locals.project = project
+    next()
 }
