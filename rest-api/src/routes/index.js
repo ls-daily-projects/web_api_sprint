@@ -5,7 +5,8 @@ import {
     getProjects,
     insertProject,
     updateProject,
-    removeProject
+    removeProject,
+    getProjectActions
 } from "../model"
 import { retrieveProjectFromId, validateProject } from "../middleware"
 
@@ -59,6 +60,21 @@ apiRouter.delete(
         try {
             await removeProject(project.id)
             res.sendStatus(204)
+        } catch (error) {
+            next(InternalServerError(error.message))
+        }
+    }
+)
+
+apiRouter.get(
+    "/projects/:projectId/actions",
+    retrieveProjectFromId,
+    async (_req, res, next) => {
+        const { project } = res.locals
+
+        try {
+            const actions = await getProjectActions(project.id)
+            res.json(actions)
         } catch (error) {
             next(InternalServerError(error.message))
         }
