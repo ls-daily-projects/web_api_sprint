@@ -1,12 +1,13 @@
 import { Router } from "express"
-import { InternalServerError } from "http-errors"
+import { InternalServerError, BadRequest } from "http-errors"
 
 import {
     getProjects,
     insertProject,
     updateProject,
     removeProject,
-    getProjectActions
+    getProjectActions,
+    insertAction
 } from "../model"
 import { retrieveProjectFromId, validateProject } from "../middleware"
 
@@ -75,6 +76,34 @@ apiRouter.get(
         try {
             const actions = await getProjectActions(project.id)
             res.json(actions)
+        } catch (error) {
+            next(InternalServerError(error.message))
+        }
+    }
+)
+
+apiRouter.post(
+    "/projects/:projectId/actions",
+    retrieveProjectFromId,
+    async (req, res, next) => {
+        const projectId = res.locals.project.id
+        const { action } = req.body
+        if (!action.description || !action.notes) {
+            return next(
+                BadRequest(
+                    "Please add the description and/or notes properties to your action."
+                )
+            )
+        }
+
+        try {
+            const newAction = await insertAction({
+                project_id: projectId,
+                description: action.description,
+                notes: action.notes,
+                completed: false
+            })
+            res.json(newAction)
         } catch (error) {
             next(InternalServerError(error.message))
         }
