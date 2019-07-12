@@ -38,6 +38,6 @@ export const validateProject = (req, res, next) => {
     if (req.method === "POST") {
         project.completed = false
     }
-    res.locals.project = project
+    res.locals.validatedProject = project
     next()
 }
