@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { InternalServerError, BadRequest } from "http-errors"
+import { InternalServerError } from "http-errors"
 
 import {
     getProjects,
@@ -7,9 +7,15 @@ import {
     updateProject,
     removeProject,
     getProjectActions,
-    insertAction
+    insertAction,
+    updateAction
 } from "../model"
-import { retrieveProjectFromId, validateProject } from "../middleware"
+import {
+    retrieveProjectFromId,
+    validateProject,
+    validateAction,
+    retrieveActionFromId
+} from "../middleware"
 
 const apiRouter = Router()
 
@@ -85,25 +91,36 @@ apiRouter.get(
 apiRouter.post(
     "/projects/:projectId/actions",
     retrieveProjectFromId,
-    async (req, res, next) => {
-        const projectId = res.locals.project.id
-        const { action } = req.body
-        if (!action.description || !action.notes) {
-            return next(
-                BadRequest(
-                    "Please add the description and/or notes properties to your action."
-                )
-            )
-        }
+    validateAction,
+    async (_req, res, next) => {
+        const { project, validatedAction } = res.locals
 
         try {
             const newAction = await insertAction({
-                project_id: projectId,
-                description: action.description,
-                notes: action.notes,
-                completed: false
+                project_id: project.id,
+                ...validatedAction
             })
             res.json(newAction)
+        } catch (error) {
+            next(InternalServerError(error.message))
+        }
+    }
+)
+
+apiRouter.put(
+    "/projects/:projectId/actions/:actionId",
+    retrieveProjectFromId,
+    validateAction,
+    retrieveActionFromId,
+    async (_req, res, next) => {
+        const { project, validatedAction, action } = res.locals
+
+        try {
+            const updatedAction = await updateAction(action.id, {
+                project_id: project.id,
+                ...validatedAction
+            })
+            res.json(updatedAction)
         } catch (error) {
             next(InternalServerError(error.message))
         }

@@ -18,5 +18,5 @@ export const projectToBody = project => {
 
 export const actionToBody = action => ({
     ...action,
-    completed: intToBoolean(action.completed)
+    completed: intToBoolean(action.completed || false)
 })
